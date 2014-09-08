@@ -24,12 +24,13 @@ object StreamingDemo{
 
     client.execute("USE streaming_test;")
     lines.foreachRDD(rdd => {
-      val firstLine = rdd.take(1).mkString("\n")
-      if (firstLine.length > 1) {
-        client.execute("INSERT INTO words (word, count)" +
-          "VALUES ('" + firstLine + "', 1);")
-      }
-      println("First line from RDD: " + firstLine)
+      rdd.collect().foreach(line => {
+        if (line.length > 1) {
+          client.execute("INSERT INTO words (word, count)" +
+            "VALUES ('" + line + "', 1);")
+        }
+        println("Line from RDD: " + line)
+      })
     })
 
     ssc.start()
