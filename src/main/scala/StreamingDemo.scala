@@ -9,14 +9,14 @@ object StreamingDemo{
   def main(args: Array[String]) {
     // Connect to the Cassandra Cluster
     val client: CassandraConnector = new CassandraConnector()
-    client.connect("127.0.0.1")
-    // client.execute("CREATE KEYSPACE streaming_test WITH REPLICATION = {'class': 'SimpleStrategy', 'replication_factor': 1 } ;")
-    // client.execute("CREATE TABLE streaming_test.words (word text PRIMARY KEY, count int);")
+    val cassandraNode = if(args.length > 0) args(0) else "127.0.0.1"
+    client.connect(cassandraNode)
+    client.execute("CREATE KEYSPACE IF NOT EXISTS streaming_test WITH REPLICATION = {'class': 'SimpleStrategy', 'replication_factor': 1 } ;")
+    client.execute("CREATE TABLE IF NOT EXISTS streaming_test.words (word text PRIMARY KEY, count int);")
 
     //  Create a StreamingContext with a SparkConf configuration
     val sparkConf = new SparkConf()
       .setAppName("StreamingDemo")
-      .set("spark.cassandra.connection.host", "localhost")
     val ssc = new StreamingContext(sparkConf, Seconds(5))
 
     // Create a DStream that will connect to serverIP:serverPort
